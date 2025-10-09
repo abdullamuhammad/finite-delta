@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=66", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finitedelta"
+version = "0.1.0"
+description = "A finite difference coefficient generator"
+license = { text = "MIT" }
+dependencies = ["numpy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"repo" = ["LICENSE"]
