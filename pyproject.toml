@@ -13,4 +13,4 @@ dependencies = ["numpy"]
 where = ["src"]
 
 [tool.setuptools.package-data]
-"repo" = ["LICENSE"]
+"finitedelta" = ["LICENSE"]
