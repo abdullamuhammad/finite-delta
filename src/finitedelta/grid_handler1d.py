@@ -2,7 +2,7 @@ import numpy as np
 import hashlib
 from .get_coef1d import get_coef1d
 
-def grid_handler1d(orders, accuracy = 2, samples = None, 
+def grid_handler1d(orders, accuracy = None, samples = None, 
                    mode = 'nonuniform', edge = 'order',
                    h = None, num_samples = None,
                    stencil = None,
@@ -69,11 +69,8 @@ def grid_handler1d(orders, accuracy = 2, samples = None,
         raise ValueError(f"Input 'mode' was given as {mode}. Must be 'nonuniform' (Default), 'uniform', or 'custom'.")
 
     ## Checks that 'accuracy' is positive integer >= 2
-    if (not isinstance(accuracy, (int, np.integer))):
+    if (not isinstance(accuracy, (int, np.integer, type(None)))):
         raise TypeError(f"Input 'accuracy' must be of integer type, not {type(accuracy).__name__}.")
-        
-    if accuracy<2:
-        raise ValueError(f"Input 'accuracy' was {accuracy}. Must be at least 2.")
 
     ## Checks that 'edge' is one of required options
     if edge not in ('number', 'num', 'n', 'order', 'o', 'accuracy', 'acc','a', 'half', 'h'):
@@ -90,6 +87,12 @@ def grid_handler1d(orders, accuracy = 2, samples = None,
 
     # Case 1: Mode is set to uniform 
     if mode in ('uniform','u'):
+        ## Set 'accuracy' default to 2
+        if accuracy is None:
+            accuracy = 2
+        elif accuracy<2:
+            raise ValueError(f"Input 'accuracy' was {accuracy}. Must be at least 2.")
+        
         ## Require 'h' and the number of samples to be specified
         if h is None:
             raise ValueError("Input 'h' must be specified when mode is set to uniform.")
@@ -106,6 +109,7 @@ def grid_handler1d(orders, accuracy = 2, samples = None,
                 raise ValueError("Input 'num_samples' must be positive integer.")
 
         elif isinstance(samples, (list, tuple, np.ndarray)):
+            samples = np.array(samples)
             if num_samples is None:
                 num_samples = len(samples)
             elif num_samples != len(samples):
@@ -208,12 +212,61 @@ def grid_handler1d(orders, accuracy = 2, samples = None,
             raise TypeError("Input 'samples' must be of list-like type.")
         else:
             num_samples = len(samples)
+            samples = np.array(samples)
 
         if accuracy is None:
             if stencil is None:
                 raise ValueError("Either 'accuracy' xor 'stencil' must be specified for non-uniform grid.")
             else:
-                pass
+                ## Iterate over all provides derivative orders
+                output_per_order = []
+                for order in orders:
+                    ## Determine how many coefficients are needed for central differences at desired accuracy
+                    if output == 'list':
+                        output_list = []
+                    else:
+                        output_mat = np.zeros((num_samples,num_samples))
+
+                    for sample_index in range(num_samples):
+                        ### Get indices of stencil relative to input 'samples'
+                        stencil_inds = np.array(stencil[sample_index])
+
+                        ### Get new stencil input into get_coef1d function
+                        stencil_input = samples[stencil_inds] - samples[sample_index]
+                        if use_cache:
+                            stencil_hash = hashlib.sha256((np.round(stencil_input / tol)*tol).astype(np.float64).tobytes()).hexdigest()
+                            try:
+                                new_coef = hash_cache[stencil_hash][order,:]
+                            except KeyError or IndexError:
+                                new_coef, inverse_taylor_matrix = get_coef1d(stencil_input, order, return_all = True)
+                                hash_cache[stencil_hash] = inverse_taylor_matrix
+                            
+                        else:
+                            new_coef = get_coef1d(stencil_input, order)
+
+                        if output == 'list':
+                            output_list += [new_coef.tolist()]
+                        else:
+                            output_mat[sample_index,stencil_inds] = new_coef
+
+                    if len(orders) == 1:
+                        if output == 'list':
+                            return output_list
+                        elif output == 'matrix':
+                            return output_mat
+                        else:
+                            return csr_matrix(output_mat)
+                    else:
+                        if output == 'list':
+                            output_per_order += [(output_list, output_locs)]
+                        elif output == 'matrix':
+                            output_per_order += [output_mat]
+                        else:
+                            output_per_order += [csr_matrix(output_mat)]
+
+                return tuple(output_per_order)
+                    
+                
 
         else:
             ### Case where accuracy is specified, rather than a provided stencil
@@ -294,26 +347,4 @@ def grid_handler1d(orders, accuracy = 2, samples = None,
             else:
                 raise ValueError("Inputs 'accuracy' and 'stencil' can not both be specified for non-uniform grid.")
 
-        
-        
-            
-        
 
-    """
-    orders - always required
-
-    Case 1: Uniform sampling
-        h required
-        accuracy required
-        edge handling required
-
-    Case 2: Non-uniform sampling
-        Case 2.1: Given whole grid with same order accuracy / central differences
-            samples required
-            accuracy required
-            edge handling required
-        Case 2.2: Custom grid at each sample
-            samples required
-            stencil required
-    """
-        
