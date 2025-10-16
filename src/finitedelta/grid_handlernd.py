@@ -96,7 +96,7 @@ def grid_handlernd(dim, partials,
         if all(isinstance(partial, (list,tuple)) for partial in partials):
             if all(len(partial) != dim for partial in partials):
                 raise ValueError("Each partial derivative in 'partials' must be of length 'dim'.")
-            elif not all(isinstance(partial_order, (int, np.integer)) and partial_order >= 0 for partial_order in partial for partial in partials):
+            elif not all(isinstance(partial_order, (int, np.integer)) and partial_order >= 0 for partial in partials for partial_order in partial ):
                 raise ValueError("Each partial derivative in 'partials' must consist of non-negative integers, describing how many times each variable is differentiated.")
             
                 
@@ -137,7 +137,7 @@ def grid_handlernd(dim, partials,
             raise ValueError("Input 'partials' must consist of non-negative integers, describing how many times a partial derivative is taken with respect to each index to achieve desired partial derivative.")
 
     # Checks that 'samples' is either (N_samples,dim) NumPy array or list of (dim,) arrays.
-    if isinstance(samples, nd.array):
+    if isinstance(samples, np.ndarray):
         if not (len(samples.shape) == 2 and samples.shape[1] == dim):
             raise ValueError("If 'samples' is NumPy array, it must have shape (N_samples,dim).")
 
@@ -145,7 +145,7 @@ def grid_handlernd(dim, partials,
         if all(isinstance(sample_axis, (tuple,list)) for sample_axis in samples):
             if not all(len(sample_axis) == dim for sample_axis in samples):
                 raise ValueError("Input 'samples' must be a list of points where a function is sampled. Each sample must be of length 'dim'.")
-            if not all(isinstance(sample_coordinate, (int, float, np.number)) for sample_coordinate in sample_axis for sample_axis in samples):
+            if not all(isinstance(sample_coordinate, (int, float, np.number)) for sample_axis in samples for sample_coordinate in sample_axis):
                 raise TypeError("Input 'samples' must be a list of sample points, where each entry is of numeric type.")
     
     else:
@@ -262,7 +262,9 @@ def grid_handlernd(dim, partials,
             stencil_local[stencil_index,:] = np.array(samples[neighbor_index][:])
 
         stencil_local -= sample_center
-        stencil_hash = hashlib.sha256((np.round(stencil_local.reshape(-1) / tol)*tol).astype(np.float64).tobytes()).hexdigest()
+
+        if use_cache:
+            stencil_hash = hashlib.sha256((np.round(stencil_local.reshape(-1) / tol)*tol).astype(np.float64).tobytes()).hexdigest()
 
         for partial_derivative in partials:
             unique_partial_index = partials_all_reverse[partial_derivative]
@@ -280,9 +282,9 @@ def grid_handlernd(dim, partials,
                     stencil_local, dim, partial_derivative, order=order, return_all = False
                 )
 
-            outputs[partial_derivative]['rows'].append(([sample_index]*len(stencil[sample_index]))[:])
-            outputs[partial_derivative]['cols'].append(list(stencil[sample_index]))
-            outputs[partial_derivative]['coef'].append(coef.tolist())
+            outputs[partial_derivative]['rows'] += ([sample_index]*len(stencil[sample_index]))[:]
+            outputs[partial_derivative]['cols'] += list(stencil[sample_index])
+            outputs[partial_derivative]['coef'] += coef.tolist()
 
     if output == 'list':
         return outputs
