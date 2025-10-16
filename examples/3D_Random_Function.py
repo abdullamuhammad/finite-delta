@@ -13,13 +13,13 @@ import numpy as np
 import sympy as sp
 from matplotlib import pyplot as plt
 
-from finitedelta.grid_handlernd import grid_handlernd
-from finitedelta.get_partials import get_partials
+from finitedelta import grid_handlernd
+from finitedelta import get_partials
 
 # Custom function to take in a tuple of SymPy symbols and a desired order, 
 # and generate a random polynomial.
 def generate_poly(x_sym, order):
-    polynomial = np.random.uniform(-5,5)
+    polynomial = np.random.uniform(-1,1)
     for k in range(1,order+1):
         terms = get_partials(len(x_sym), k)
         for term in terms:
@@ -74,7 +74,7 @@ def main():
         stencils.append(stencil_new)
 
     # Generate all partial derivatives of order 4, and randomly choose 3.
-    all_partials = get_partials(dim, order = 4)
+    all_partials = get_partials(dim, order = 3)
     partials = [all_partials[i] for i in np.random.choice(len(all_partials),3,False)]
 
     # Use grid_handlernd to generate sparse matrices to estimate respective partials using custom stencil.
@@ -90,7 +90,7 @@ def main():
     # Use SymPy to generate 3 variables in 'x_sym' and a custom function u(x_sym[0], ..., x_sym[dim-1]).
     x_sym = sp.symbols(f'x0:{dim}')
     u = generate_poly(x_sym, 5) 
-    u += np.random.normal(0,1)*sp.cos(generate_poly(x_sym, 2))
+    u += generate_poly(x_sym, 3)*sp.cos(generate_poly(x_sym, 2))
     u += np.random.normal(0,1)*sp.sin(generate_poly(x_sym, 2))
 
     # Use SymPy's lambdify function to convert symbolic function into NumPy function and apply to samples.

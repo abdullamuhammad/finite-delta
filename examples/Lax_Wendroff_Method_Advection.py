@@ -12,7 +12,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-from finitedelta.grid_handler1d import grid_handler1d
+from finitedelta import grid_handler1d
 
 def main():
     # Set up spatial grid and sampling
