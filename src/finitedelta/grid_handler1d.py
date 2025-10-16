@@ -116,7 +116,7 @@ def grid_handler1d(orders, accuracy = None, samples = None,
                 raise ValueError("Input 'num_samples' must match length of samples.")
             
         else:
-            raise TypeError(f"Input 'samples' must be list or NumPy array type, not {type(accuracy).__name__}.")
+            raise TypeError(f"Input 'samples' must be list or NumPy array type, not {type(samples).__name__}.")
 
         if stencil != None:
             raise TypeError("Input 'stencil' can't be specified for uniform mode.")
