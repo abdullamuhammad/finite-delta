@@ -72,7 +72,7 @@ Nonetheless, I thought this would be a fun personal project, where I could throw
 
    2. _Ex. Identify linear operator of finite difference coefficients to solve PDE numerically_
 
-      See /examples/Lax_Wendroff_Method_Advection.py for a simulation of the 1D Advection PDE: $\frac{\partial u}{\partial t} = \alpha \frac{\partial u}{\partial x}$. Solving for $u(x,t)$ while maintaining numerical stability requires estimations of both $\frac{\partial u}{\partial x}, \frac{\partial^2 u(x,t)}{\partial x^2}$ (i.e. the Lax-Wendroff Scheme \[3\].) . Using **finitedelta.grid_handler1d** returns linear operators $D_x, D_{xx}$ which approximate these partial derivatives using the method of finite differences. Running the code:
+      See /examples/Lax_Wendroff_Method_Advection.py for a simulation of the 1D Advection PDE: $\frac{\partial u}{\partial t} = \alpha \frac{\partial u}{\partial x}$. Solving for $u(x,t)$ while maintaining numerical stability requires estimations of both $\frac{\partial u}{\partial x}, \frac{\partial^2 u(x,t)}{\partial x^2}$ (i.e. the [Lax-Wendroff Scheme](https://en.wikipedia.org/wiki/Lax%E2%80%93Wendroff_method) \[3\].) . Using **finitedelta.grid_handler1d** returns linear operators $D_x, D_{xx}$ which approximate these partial derivatives using the method of finite differences. Running the code:
   
       ```
       ./examples/Lax_Wendroff_Method_Advection.py
