@@ -27,7 +27,7 @@ Nonetheless, I thought this would be a fun personal project, where I could throw
 
     2. (Optional) Install required packages
   
-       The only prerequisite package for using the most basic form of finitedelta is NumPy. However, SciPy is used for representing the linear transformations corresponding to finite difference coefficient approximations as sparse matrices. Furthermore, installation is easiest when cloning directly from github, which requires git. Additionally, SymPy and Matplotlib are used in some of the examples. While not explicitly required to install these, we recommend it for certain usecases.
+       The only prerequisite package for using the most basic form of finitedelta is NumPy. However, SciPy is used for representing the linear transformations corresponding to finite difference coefficient approximations as sparse matrices. Furthermore, installation is easiest when cloning directly from github, which requires git. Additionally, SymPy and Matplotlib are used in some of the examples. While not explicitly required to install these, I recommend it for certain usecases.
 
        ```
        pip install git scipy sympy matplotlib
@@ -45,7 +45,7 @@ Nonetheless, I thought this would be a fun personal project, where I could throw
 
    2. Go into directory and pip install.
 
-      We recommend installing in editable mode, which allows the source code (in /finite-delta/src/finitedelta/) to be edited without requiring pip installation every time to update functions.
+      I recommend installing in editable mode, which allows the source code (in /finite-delta/src/finitedelta/) to be edited without requiring pip installation every time to update functions.
 
       ```
       cd finite-delta
